@@ -1,0 +1,265 @@
+<div class="center-table">
+
+<div class="mat-elevation-z8  tabla">
+  <div class="header">
+    <h1>Listado de facturas</h1>
+    <button type="button" mat-raised-button data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+      Crear nueva factura
+    </button>
+    
+  </div>
+  <table mat-table [dataSource]="bills">
+
+    <!-- Number Column -->
+    <ng-container matColumnDef="invoiceId">
+      <th mat-header-cell *matHeaderCellDef> Id </th>
+      <td mat-cell *matCellDef="let element"> {{element.invoiceId}} </td>
+    </ng-container>
+
+    <!-- Number Column -->
+    <ng-container matColumnDef="number">
+      <th mat-header-cell *matHeaderCellDef> Numero </th>
+      <td mat-cell *matCellDef="let element"> {{element.number}} </td>
+    </ng-container>
+
+    <!-- Customer Column -->
+    <ng-container matColumnDef="customer">
+      <th mat-header-cell *matHeaderCellDef> Cliente </th>
+      <td mat-cell *matCellDef="let element"> {{element.customer}} </td>
+    </ng-container>
+
+    <!-- Detail Column -->
+    <ng-container matColumnDef="detail">
+      <th mat-header-cell *matHeaderCellDef> Detalle </th>
+      <td mat-cell *matCellDef="let element"> {{element.detail}} </td>
+    </ng-container>
+
+    <!-- Amount Column -->
+    <ng-container matColumnDef="amount">
+      <th mat-header-cell *matHeaderCellDef> Monto </th>
+      <td mat-cell *matCellDef="let element"> {{element.amount}} </td>
+    </ng-container>
+
+    <!-- Actions column -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef> Acciones </th>
+      <td mat-cell *matCellDef="let element">
+        <button mat-icon-button  (click)="editInvoice(element)" data-bs-toggle="modal" data-bs-target="#staticEdit">
+          <mat-icon>edit</mat-icon>
+        </button>
+        <button mat-icon-button (click)="deleteInvoice(element)" data-bs-toggle="modal" data-bs-target="#staticDelete">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+  <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Select page of invoices">
+  </mat-paginator>
+</div>
+</div>
+
+
+
+<!-- Modal Crear Factura-->
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header d-flex align-items-center justify-content-center">
+        <h1 class="modal-title fs-5 text-center w-100" id="staticBackdropLabel"><b>Nueva factura</b></h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="billingForm" (ngSubmit)="onSubmit()">
+          <div class="row">
+            <div class="col-md-12">
+              <mat-form-field class="w-100">
+                <mat-label>Número</mat-label>
+                <input type="number" matInput placeholder="004" class="w-100" formControlName="number"/>
+                <mat-error *ngIf="billingForm.get('number')?.hasError('required')">
+                  Número es requerido
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-md-12">
+              <mat-form-field class="w-100">
+                <mat-label>Cliente</mat-label>
+                <input type="number" matInput placeholder="2004" class="w-100" formControlName="customer"/>
+                <mat-error *ngIf="billingForm.get('customer')?.hasError('required')">
+                  Cliente es requerido
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-md-12">
+              <mat-form-field class="w-100" >
+                <mat-label>Detalle</mat-label>
+                <input type="text" matInput placeholder="descripcion de factura" class="w-100" formControlName="detail"/>
+                <mat-error *ngIf="billingForm.get('detail')?.hasError('required')">
+                  Detalle es requerido
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-md-12">
+              <mat-form-field class="w-100">
+                <mat-label>Monto</mat-label>
+                <input type="number" matInput placeholder="00" class="w-100 example-right-align" formControlName="amount"/>
+                <mat-error *ngIf="billingForm.get('amount')?.hasError('required')">
+                  Monto es requerido
+                </mat-error>
+                <span matTextPrefix>$&nbsp;</span>
+                <span matTextSuffix>.00</span>
+              </mat-form-field> 
+            </div>
+            <div class="col-md-12 mt-3">
+              <button class="btn btn-outline-success btn-lg  w-100" type="submit">Crear factura</button>
+            </div>
+                      
+          </div>               
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal Editar Factura-->
+<div class="modal fade" id="staticEdit" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header d-flex align-items-center justify-content-center">
+        <h1 class="modal-title fs-5 text-center w-100" id="staticBackdropLabel"><b>Editar factura</b></h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="billingFormEdit" (ngSubmit)="onSubmitEdit()">
+          <div class="row">
+            <div class="col-md-12" [hidden]="hideFields">
+              <mat-form-field class="w-100">
+                <mat-label>Invoice Id</mat-label>
+                <input type="number" matInput  class="w-100" formControlName="invoiceId" [disabled]="true"/>
+                <mat-error *ngIf="billingFormEdit.get('invoiceId')?.hasError('required')">
+                  Id es requerido
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-md-12" [hidden]="hideFields">
+              <mat-form-field class="w-100">
+                <mat-label>Número</mat-label>
+                <input type="number" matInput  placeholder="004" class="w-100" formControlName="number" [disabled]="true"/>
+                <mat-error *ngIf="billingFormEdit.get('number')?.hasError('required')">
+                  Número es requerido
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-md-12" [hidden]="hideFields">
+              <mat-form-field class="w-100">
+                <mat-label>Cliente</mat-label>
+                <input type="number" matInput  placeholder="2004" class="w-100" formControlName="customer" [disabled]="true"/>
+                <mat-error *ngIf="billingFormEdit.get('customer')?.hasError('required')">
+                  Cliente es requerido
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-md-12">
+              <mat-form-field class="w-100" >
+                <mat-label>Detalle</mat-label>
+                <input type="text" matInput placeholder="descripcion de factura" class="w-100" formControlName="detail"/>
+                <mat-error *ngIf="billingFormEdit.get('detail')?.hasError('required')">
+                  Detalle es requerido
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-md-12">
+              <mat-form-field class="w-100">
+                <mat-label>Monto</mat-label>
+                <input type="number" matInput placeholder="00" class="w-100 example-right-align" formControlName="amount"/>
+                <mat-error *ngIf="billingFormEdit.get('amount')?.hasError('required')">
+                  Monto es requerido
+                </mat-error>
+                <span matTextPrefix>$&nbsp;</span>
+                <span matTextSuffix>.00</span>
+              </mat-form-field> 
+            </div>
+            <div class="col-md-12 mt-3">
+              <button class="btn btn-outline-primary btn-lg  w-100" type="submit">Editar factura</button>
+            </div>
+                      
+          </div>               
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- Modal Eliminar Factura-->
+<div class="modal fade" id="staticDelete" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header d-flex align-items-center justify-content-center">
+        <h1 class="modal-title fs-5 text-center w-100" id="staticBackdropLabel"><b>Eliminar factura</b></h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="billingFormDelete" (ngSubmit)="onSubmitDelete()">
+          <div class="row">
+            <div class="col-md-12" >
+              <mat-form-field class="w-100">
+                <mat-label>Invoice Id</mat-label>
+                <input type="number" matInput  class="w-100" formControlName="invoiceId" />
+                <mat-error *ngIf="billingFormEdit.get('invoiceId')?.hasError('required')">
+                  Id es requerido
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-md-12" >
+              <mat-form-field class="w-100">
+                <mat-label>Número</mat-label>
+                <input type="number" matInput  placeholder="004" class="w-100" formControlName="number" />
+                <mat-error *ngIf="billingFormEdit.get('number')?.hasError('required')">
+                  Número es requerido
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-md-12" >
+              <mat-form-field class="w-100">
+                <mat-label>Cliente</mat-label>
+                <input type="number" matInput  placeholder="2004" class="w-100" formControlName="customer" />
+                <mat-error *ngIf="billingFormEdit.get('customer')?.hasError('required')">
+                  Cliente es requerido
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-md-12">
+              <mat-form-field class="w-100" >
+                <mat-label>Detalle</mat-label>
+                <input type="text" matInput placeholder="descripcion de factura" class="w-100" formControlName="detail"/>
+                <mat-error *ngIf="billingFormEdit.get('detail')?.hasError('required')">
+                  Detalle es requerido
+                </mat-error>
+              </mat-form-field>
+            </div>
+            <div class="col-md-12">
+              <mat-form-field class="w-100">
+                <mat-label>Monto</mat-label>
+                <input type="number" matInput placeholder="00" class="w-100 example-right-align" formControlName="amount"/>
+                <mat-error *ngIf="billingFormEdit.get('amount')?.hasError('required')">
+                  Monto es requerido
+                </mat-error>
+                <span matTextPrefix>$&nbsp;</span>
+                <span matTextSuffix>.00</span>
+              </mat-form-field> 
+            </div>
+            <div class="col-md-12 mt-3">
+              <button class="btn btn-outline-danger btn-lg  w-100" id="deleteButton" type="submit">Eliminar factura</button>
+            </div>
+                      
+          </div>               
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

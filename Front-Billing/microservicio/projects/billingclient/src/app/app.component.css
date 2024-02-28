@@ -1,0 +1,61 @@
+/* Estilo del marco de la tabla */
+table {
+  width: 100%;
+}
+
+.center-table {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  background-color: black;
+  color: white;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.header h1 {
+  margin: 0; /* Elimina el margen predeterminado del h1 */
+}
+
+.create-button {
+  margin-right: 10px; /* Ajusta el margen del botón para separarlo del borde derecho */
+}
+
+.tabla {
+  width: 100%;
+  max-width: 1200px;
+  margin-top: 20px;
+  overflow-x: auto;
+}
+
+/* Hace que la tabla sea 100% ancha en pantallas pequeñas */
+@media (max-width: 600px) {
+  .tabla {
+    width: 100%;
+    margin-top: 10px;
+  }
+}
+
+
+.example-right-align {
+  text-align: right;
+}
+
+input.example-right-align::-webkit-outer-spin-button,
+input.example-right-align::-webkit-inner-spin-button {
+  display: none;
+}
+
+input.example-right-align {
+  -moz-appearance: textfield;
+}
